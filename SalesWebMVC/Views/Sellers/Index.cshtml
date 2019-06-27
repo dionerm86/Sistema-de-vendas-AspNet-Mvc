@@ -16,16 +16,16 @@
     <thead>
         <tr class="btn-primary">
             <th>
-                @Html.DisplayNameFor(model => model.Name)
+                @Html.DisplayNameFor(model => model.Name).Replace("Name", "Nome")
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.Email)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.BirthDate)
+                @Html.DisplayNameFor(model => model.BirthDate).Replace("BirthDate", "Data Aniverário")
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.BaseSalary)
+                @Html.DisplayNameFor(model => model.BaseSalary).Replace("BaseSalary", "Salário Base")
             </th>
             <th>
 
@@ -46,12 +46,12 @@
                 @Html.DisplayFor(modelItem => item.BirthDate)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.BaseSalary)
+                R$ @Html.DisplayFor(modelItem => item.BaseSalary)
             </td>
             <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a>
-                <a asp-action="Details" asp-route-id="@item.Id">Detail</a>
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                <a asp-action="Edit" asp-route-id="@item.Id">Editar</a>
+                <a asp-action="Details" asp-route-id="@item.Id">Detalhes</a>
+                <a asp-action="DeleteSeller" asp-route-id="@item.Id">Excluir</a>
             </td>
         </tr>
         }

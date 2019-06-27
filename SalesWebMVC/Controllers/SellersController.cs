@@ -39,5 +39,29 @@ namespace SalesWebMVC.Controllers
             // redirecionar a requisição para a ação Index, que é ação que mostra a tela principal do crud de vendedores.
             return RedirectToAction(nameof(Index));
         }
+
+        public IActionResult DeleteSeller(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var obj = _sellerService.FindSellerById(id.Value); //Esse .Value é necessário pois o parâmetro id é opcional
+            if (obj == null)
+            {
+                return NotFound();
+            }
+
+            return View(obj);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult DeleteSeller(int id)
+        {
+            _sellerService.RemoveSeller(id);
+            return RedirectToAction(nameof(Index));
+        }
     }
 }
