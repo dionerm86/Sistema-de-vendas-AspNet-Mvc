@@ -1,16 +1,18 @@
 ﻿using SalesWebMVC.Services;
 using Microsoft.AspNetCore.Mvc;
 using SalesWebMVC.Models;
-
+using SalesWebMVC.Models.ViewModels;
 namespace SalesWebMVC.Controllers
 {
     public class SellersController : Controller
     {
-        public readonly SellerService _sellerService;
+        private readonly SellerService _sellerService;
+        private readonly DepartmentService _departmentService;
 
-        public SellersController(SellerService sellerService)
+        public SellersController(SellerService sellerService, DepartmentService departmentService)
         {
             _sellerService = sellerService;
+            _departmentService = departmentService;
         }
 
         public IActionResult Index()
@@ -19,9 +21,12 @@ namespace SalesWebMVC.Controllers
             return View(list);
         }
 
+        //Esse método abre o formulário para cadastrar o vendedor
         public IActionResult Create()
         {
-            return View();
+            var departments = _departmentService.FindAllDepartments();
+            var viewModel = new SellerFormViewModel { Departments = departments };
+            return View(viewModel);
         }
 
         //Indicar que a ação será um post e não um get
