@@ -1,13 +1,10 @@
-﻿@model SalesWebMVC.Models.Seller;
-
+﻿@model SalesWebMVC.Models.Seller
 @{
-    ViewData["Title"] = "DeleteSeller";
+    ViewData["Title"] = "Details";
 }
 
-<h2>Excluir Vendedor</h2>
-
+<h2>Detalhes</h2>
 <div>
-    <hr />
     <dl class="dl-horizontal">
         <dt>
             @Html.DisplayNameFor(model => model.Name).Replace("Name", "Nome:")
@@ -34,11 +31,8 @@
             @Html.DisplayFor(model => model.BaseSalary)
         </dd>
     </dl>
-
-    <form asp-action="DeleteSeller">
-        <input type="hidden" asp-for="Id" />
-        <input type="submit" value="Excluir" class="btn btn-danger" />
-        <a asp-action="Index">Cancelar</a>
-</form>
 </div>
-
+<div>
+    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-info">Editar</a>
+    <a asp-action="Index" class="btn btn-default">Voltar</a>
+</div>
