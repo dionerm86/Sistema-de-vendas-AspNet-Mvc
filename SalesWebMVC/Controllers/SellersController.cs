@@ -2,6 +2,8 @@
 using Microsoft.AspNetCore.Mvc;
 using SalesWebMVC.Models;
 using SalesWebMVC.Models.ViewModels;
+using System.Collections.Generic;
+using SalesWebMVC.Services.Exceptions;
 namespace SalesWebMVC.Controllers
 {
     public class SellersController : Controller
@@ -78,6 +80,50 @@ namespace SalesWebMVC.Controllers
             }
 
             return View(obj);
+        }
+
+        public IActionResult Edit(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var obj = _sellerService.FindSellerById(id.Value); // o .value é necessário quando o parâmetro int? fo opcional
+            if (obj == null)
+            {
+                return NotFound();
+            }
+
+            //Instanciar a lista de departamentos para carregar a tela de edição.
+            List<Department> departments = _departmentService.FindAllDepartments();
+            //Criar o obj viewModel
+            SellerFormViewModel viewModel = new SellerFormViewModel { Seller = obj, Departments = departments };
+            return View(viewModel);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult Edit(int id, Seller seller)
+        {
+            if (id != seller.Id)
+            {
+                return BadRequest();
+            }
+
+            try
+            {
+                _sellerService.UpdateSeller(seller);
+                return RedirectToAction(nameof(Index));
+            }
+            catch (NotFoundException)
+            {
+                return NotFound();
+            }
+            catch (DbConcurrencyException)
+            {
+                return BadRequest();
+            }
         }
     }
 }
