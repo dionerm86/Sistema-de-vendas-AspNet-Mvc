@@ -4,6 +4,8 @@ using SalesWebMVC.Models;
 using SalesWebMVC.Models.ViewModels;
 using System.Collections.Generic;
 using SalesWebMVC.Services.Exceptions;
+using System.Diagnostics;
+
 namespace SalesWebMVC.Controllers
 {
     public class SellersController : Controller
@@ -46,13 +48,13 @@ namespace SalesWebMVC.Controllers
         {
             if (id == null)
             {
-                return NotFound();
+                return RedirectToAction(nameof(Error), new { message = "O Id não foi fornecido!" } );
             }
 
             var obj = _sellerService.FindSellerById(id.Value); //Esse .Value é necessário pois o parâmetro id é opcional
             if (obj == null)
             {
-                return NotFound();
+                return RedirectToAction(nameof(Error), new { message = "Id não encontrado!" });
             }
 
             return View(obj);
@@ -70,13 +72,13 @@ namespace SalesWebMVC.Controllers
         {
             if (id == null)
             {
-                return NotFound();
+                return RedirectToAction(nameof(Error), new { message = "O Id do vendedor não foi inserido!" });
             }
 
             var obj = _sellerService.FindSellerById(id.Value); //Esse .Value é necessário pois o parâmetro id é opcional
             if (obj == null)
             {
-                return NotFound();
+                return RedirectToAction(nameof(Error), new { message = "O Id do vendedor não foi encontrado" });
             }
 
             return View(obj);
@@ -86,13 +88,13 @@ namespace SalesWebMVC.Controllers
         {
             if (id == null)
             {
-                return NotFound();
+                return RedirectToAction(nameof(Error), new { message = "O Id do vendedor não foi inserido!" });
             }
 
             var obj = _sellerService.FindSellerById(id.Value); // o .value é necessário quando o parâmetro int? fo opcional
             if (obj == null)
             {
-                return NotFound();
+                return RedirectToAction(nameof(Error), new { message = "Id não encontrado" });
             }
 
             //Instanciar a lista de departamentos para carregar a tela de edição.
@@ -108,7 +110,7 @@ namespace SalesWebMVC.Controllers
         {
             if (id != seller.Id)
             {
-                return BadRequest();
+                return RedirectToAction(nameof(Error), new { message = "Os Id´s não correspondem!" });
             }
 
             try
@@ -116,14 +118,26 @@ namespace SalesWebMVC.Controllers
                 _sellerService.UpdateSeller(seller);
                 return RedirectToAction(nameof(Index));
             }
-            catch (NotFoundException)
+            catch (NotFoundException e)
             {
-                return NotFound();
+                return RedirectToAction(nameof(Error), new { message = e.Message });
             }
-            catch (DbConcurrencyException)
+            catch (DbConcurrencyException e)
             {
-                return BadRequest();
+                return RedirectToAction(nameof(Error), new { message = e.Message });
             }
+        }
+
+        public IActionResult Error(string message)
+        {
+            var viewModel = new ErrorViewModel
+            {
+                Message = message,
+                //Buscar o Id interno da requisição
+                RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier
+            };
+
+            return View(viewModel);
         }
     }
 }
