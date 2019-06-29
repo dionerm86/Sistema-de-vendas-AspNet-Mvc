@@ -1,6 +1,8 @@
 ﻿using SalesWebMVC.Models;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 
 namespace SalesWebMVC.Services
 {
@@ -13,9 +15,12 @@ namespace SalesWebMVC.Services
             _context = context;
         }
 
-        public List<Department> FindAllDepartments()
+        //Método FindAll com implemenação assíncrona para agilizar consultar ao banco
+        // O await do return avisa pro compilado que o consulta é assíncrona
+        public async Task<List<Department>> FindAllDepartmentsAsync()
         {
-            return _context.Department.OrderBy(x => x.Name).ToList();
+            return await _context.Department.OrderBy(x => x.Name).ToListAsync();
+
         }
     }
 }

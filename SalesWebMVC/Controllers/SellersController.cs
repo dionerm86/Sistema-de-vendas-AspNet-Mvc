@@ -5,6 +5,7 @@ using SalesWebMVC.Models.ViewModels;
 using System.Collections.Generic;
 using SalesWebMVC.Services.Exceptions;
 using System.Diagnostics;
+using System.Threading.Tasks;
 
 namespace SalesWebMVC.Controllers
 {
@@ -19,16 +20,16 @@ namespace SalesWebMVC.Controllers
             _departmentService = departmentService;
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
-            var list = _sellerService.FindAll();
+            var list = await _sellerService.FindAllAsync();
             return View(list);
         }
 
         //Esse método abre o formulário para cadastrar o vendedor
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
-            var departments = _departmentService.FindAllDepartments();
+            var departments = await _departmentService.FindAllDepartmentsAsync();
             var viewModel = new SellerFormViewModel { Departments = departments };
             return View(viewModel);
         }
@@ -37,29 +38,29 @@ namespace SalesWebMVC.Controllers
         [HttpPost]
         //Previnir que a aplicação sofra ataque CSRF (dados maliciosos)
         [ValidateAntiForgeryToken]
-        public IActionResult Create(Seller seller)
+        public async Task<IActionResult> Create(Seller seller)
         {
             //Condição necessária para bloquear enviou de requisição com cadastro em branco
             if (!ModelState.IsValid)
             {
-                var departments = _departmentService.FindAllDepartments();
+                var departments = await _departmentService.FindAllDepartmentsAsync();
                 var viewModel = new SellerFormViewModel { Seller = seller, Departments = departments };
                 return View(viewModel);
             }
 
-            _sellerService.InsertSeller(seller);
+            await _sellerService.InsertSellerAsync(seller);
             // redirecionar a requisição para a ação Index, que é ação que mostra a tela principal do crud de vendedores.
             return RedirectToAction(nameof(Index));
         }
 
-        public IActionResult DeleteSeller(int? id)
+        public async Task<IActionResult> DeleteSeller(int? id)
         {
             if (id == null)
             {
-                return RedirectToAction(nameof(Error), new { message = "O Id não foi fornecido!" } );
+                return RedirectToAction(nameof(Error), new { message = "O Id não foi fornecido!" });
             }
 
-            var obj = _sellerService.FindSellerById(id.Value); //Esse .Value é necessário pois o parâmetro id é opcional
+            var obj = await _sellerService.FindSellerByIdAsync(id.Value); //Esse .Value é necessário pois o parâmetro id é opcional
             if (obj == null)
             {
                 return RedirectToAction(nameof(Error), new { message = "Id não encontrado!" });
@@ -70,20 +71,20 @@ namespace SalesWebMVC.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult DeleteSeller(int id)
+        public async Task<IActionResult> DeleteSeller(int id)
         {
-            _sellerService.RemoveSeller(id);
+            await _sellerService.RemoveSellerAsync(id);
             return RedirectToAction(nameof(Index));
         }
 
-        public IActionResult Details(int? id)
+        public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
             {
                 return RedirectToAction(nameof(Error), new { message = "O Id do vendedor não foi inserido!" });
             }
 
-            var obj = _sellerService.FindSellerById(id.Value); //Esse .Value é necessário pois o parâmetro id é opcional
+            var obj = await _sellerService.FindSellerByIdAsync(id.Value); //Esse .Value é necessário pois o parâmetro id é opcional
             if (obj == null)
             {
                 return RedirectToAction(nameof(Error), new { message = "O Id do vendedor não foi encontrado" });
@@ -92,21 +93,21 @@ namespace SalesWebMVC.Controllers
             return View(obj);
         }
 
-        public IActionResult Edit(int? id)
+        public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
             {
                 return RedirectToAction(nameof(Error), new { message = "O Id do vendedor não foi inserido!" });
             }
 
-            var obj = _sellerService.FindSellerById(id.Value); // o .value é necessário quando o parâmetro int? fo opcional
+            var obj = await _sellerService.FindSellerByIdAsync(id.Value); // o .value é necessário quando o parâmetro int? fo opcional
             if (obj == null)
             {
                 return RedirectToAction(nameof(Error), new { message = "Id não encontrado" });
             }
 
             //Instanciar a lista de departamentos para carregar a tela de edição.
-            List<Department> departments = _departmentService.FindAllDepartments();
+            List<Department> departments = await _departmentService.FindAllDepartmentsAsync();
             //Criar o obj viewModel
             SellerFormViewModel viewModel = new SellerFormViewModel { Seller = obj, Departments = departments };
             return View(viewModel);
@@ -114,12 +115,12 @@ namespace SalesWebMVC.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Edit(int id, Seller seller)
+        public async Task<IActionResult> Edit(int id, Seller seller)
         {
             //Condição necessária para bloquear enviou de requisição com cadastro em branco
             if (!ModelState.IsValid)
             {
-                var departments = _departmentService.FindAllDepartments();
+                var departments = await _departmentService.FindAllDepartmentsAsync();
                 var viewModel = new SellerFormViewModel { Seller = seller, Departments = departments };
                 return View(viewModel);
             }
@@ -131,7 +132,7 @@ namespace SalesWebMVC.Controllers
 
             try
             {
-                _sellerService.UpdateSeller(seller);
+                await _sellerService.UpdateSellerAsync(seller);
                 return RedirectToAction(nameof(Index));
             }
             catch (NotFoundException e)

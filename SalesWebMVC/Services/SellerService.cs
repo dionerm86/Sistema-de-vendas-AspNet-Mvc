@@ -3,6 +3,7 @@ using System.Linq;
 using SalesWebMVC.Models;
 using Microsoft.EntityFrameworkCore;
 using SalesWebMVC.Services.Exceptions;
+using System.Threading.Tasks;
 
 namespace SalesWebMVC.Services
 {
@@ -15,44 +16,49 @@ namespace SalesWebMVC.Services
             _context = context;
         }
 
-        public List<Seller> FindAll()
+        //Método FindAll com implemenação assíncrona para agilizar consultar ao banco
+        // O await do return avisa pro compilado que o consulta é assíncrona
+        public async Task<List<Seller>> FindAllAsync()
         {
-            return _context.Seller.ToList();
+            return await _context.Seller.ToListAsync();
         }
 
-        public void InsertSeller(Seller obj)
+        public async Task InsertSellerAsync(Seller obj)
         {
             _context.Add(obj);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
         }
 
-        public Seller FindSellerById(int id)
+
+        public async Task<Seller> FindSellerByIdAsync(int id)
         {
             //a expressão lâmbida com include permite levar o departamento do vendedor junto com o Id(add using Microsift.EntityFrameworkCore)
-            return _context.Seller.Include(obj => obj.Department).FirstOrDefault(obj => obj.Id == id);
+            return await _context.Seller.Include(obj => obj.Department).FirstOrDefaultAsync(obj => obj.Id == id);
         }
 
-        public void RemoveSeller(int id)
+        public async Task RemoveSellerAsync(int id)
         {
             var obj = _context.Seller.Find(id);
             _context.Seller.Remove(obj);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
         }
 
         /// <summary>
         /// Método responsável por atualizar o vendedor
         /// </summary>
         /// <param name="obj"></param>
-        public void UpdateSeller(Seller obj)
+        public async Task UpdateSellerAsync(Seller obj)
         {
-            if (!_context.Seller.Any(x => x.Id == obj.Id))// o Any verifica se há algum registro no BD com a condição informada
+            // o Any verifica se há algum registro no BD com a condição informada
+            bool HasAny = await _context.Seller.AnyAsync(x => x.Id == obj.Id);
+            if (!HasAny)
             {
-                throw new KeyNotFoundException("Id não encontrado"); 
+                throw new KeyNotFoundException("Id não encontrado");
             }
             try
             {
-                _context.Update(obj);//Atualiza o banco 
-                _context.SaveChanges();
+                _context.Update(obj);//Atualiza o banco
+                await _context.SaveChangesAsync();
             }
             //Se ocorrer uma exceção de nível de acesso à dados, a camada de serviço lança uma exceção própria
             catch (DbUpdateConcurrencyException e)
