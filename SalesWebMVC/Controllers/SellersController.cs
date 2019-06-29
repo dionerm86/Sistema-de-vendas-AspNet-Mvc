@@ -63,7 +63,7 @@ namespace SalesWebMVC.Controllers
             var obj = await _sellerService.FindSellerByIdAsync(id.Value); //Esse .Value é necessário pois o parâmetro id é opcional
             if (obj == null)
             {
-                return RedirectToAction(nameof(Error), new { message = "Id não encontrado!" });
+                return RedirectToAction(nameof(Error), new { message = "Id não encontrado!" }); 
             }
 
             return View(obj);
@@ -73,8 +73,16 @@ namespace SalesWebMVC.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteSeller(int id)
         {
-            await _sellerService.RemoveSellerAsync(id);
-            return RedirectToAction(nameof(Index));
+            try
+            {
+                await _sellerService.RemoveSellerAsync(id);
+                return RedirectToAction(nameof(Index));
+            }
+            catch (IntegrityException e)
+            {
+                return RedirectToAction(nameof(Error), new { message = e.Message });
+            }
+            
         }
 
         public async Task<IActionResult> Details(int? id)
